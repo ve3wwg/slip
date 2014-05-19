@@ -30,11 +30,13 @@
 extern "C" {
 	typedef uint8_t (*slipread_t)(void *arg);        	// Read byte user routine
 	typedef void (*slipwrite_t)(uint8_t b,void *arg); 	// Write byte user routine
+	typedef void (*slipflush_t)(void *arg);			// Flush written data (usb etc.)
 }
 
 class SLIP {
 	slipread_t		read_b;		// Routine to fetch data with
 	slipwrite_t		write_b;	// Routine to write data with
+	slipflush_t		flush_data;	// Optional flush routine
 	void			*arg;		// I/O routine argument
 	bool			use_crc8;	// Include CRC8 in packet
 
@@ -47,7 +49,7 @@ public:	enum Status {
 		ES_CRC				// CRC Failure
 	};
 
-	SLIP(slipread_t read_func,slipwrite_t write_func,void *arg);
+	SLIP(slipread_t read_func,slipwrite_t write_func,void *arg,slipflush_t flush_func=0);
 	bool enable_crc8(bool on);
 	void write(const void *buffer,unsigned length);
 	Status read(void *buffer,unsigned buflen,unsigned& retlength);

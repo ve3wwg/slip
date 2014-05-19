@@ -8,7 +8,7 @@
 
 include $(CURDIR)/../../Makefile.conf
 
-CXX_FILES 	:= $(wildcard *.cpp)
+CXX_FILES 	:= slip.cpp
 OBJS 		:= $(CXX_FILES:.cpp=.o) 
 
 all:	$(LIB_DIR)/libslip.a

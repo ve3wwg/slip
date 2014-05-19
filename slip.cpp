@@ -15,9 +15,10 @@
 // SLIP constructor :
 //////////////////////////////////////////////////////////////////////
 
-SLIP::SLIP(slipread_t read_func,slipwrite_t write_func,void *arg) {
+SLIP::SLIP(slipread_t read_func,slipwrite_t write_func,void *arg,slipflush_t flush_func) {
         read_b 	= read_func;    	// Byte reader
         write_b	= write_func;   	// Byte writer
+	flush_data = flush_func;	// Flush routine (else null)
 	this->arg = arg;		// I/O routine argument
 	use_crc8 = false;
 }
@@ -59,6 +60,8 @@ SLIP::write(const void *buffer,unsigned length) {
 	}
 
 	write_b(END,arg);			// Mark the end of the packet
+	if ( flush_data )
+		flush_data(arg);		// Flush data to usb (etc.) device
 }
 
 //////////////////////////////////////////////////////////////////////
