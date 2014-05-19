@@ -1,0 +1,34 @@
+######################################################################
+#  teensy3_lib/posix/slip/Makefile.posix
+#  Warren Gay ve3wwg	Sat Apr  5 08:47:58 2014
+######################################################################
+
+include ../Makefile.conf
+
+C_FILES 	:= $(wildcard *.c)
+CPP_FILES 	:= $(wildcard *.cpp)
+OBJS 		:= $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
+
+all:	$(TOP_DIR)/lib/libteensy.a
+
+slip.o: slip.hpp slip.cpp crc8.cpp
+
+$(TOP_DIR)/lib/libteensy.a: slip.o
+	$(AR) r $(TOP_DIR)/lib/libteensy.a slip.o
+
+testslip: testslip.o $(TOP_DIR)/lib/libteensy.a
+	$(CXX) testslip.o -o testslip $(LDFLAGS) -lteensy
+
+check:	testslip
+	cat slip.hpp slip.cpp crc8.cpp Makefile >t1.t
+	./testslip w <t1.t >t2.t
+	./testslip r <t2.t >t3.t
+	cmp t1.t t3.t && echo "Test successful." || echo "Test failed!"
+
+clean:
+	rm -f *.o *.d t1.t t2.t t3.t testslip
+
+distclean: clean
+	rm -f $(TOP_DIR)/libteensy.a testslip errs.t
+
+# End posix/slip/Makefile.posix
