@@ -28,13 +28,14 @@
 #include <stdint.h>
 
 extern "C" {
-	typedef uint8_t (*slipread_t)();        // Read byte user routine
-	typedef void (*slipwrite_t)(uint8_t b); // Write byte user routine
+	typedef uint8_t (*slipread_t)(void *arg);        	// Read byte user routine
+	typedef void (*slipwrite_t)(uint8_t b,void *arg); 	// Write byte user routine
 }
 
 class SLIP {
 	slipread_t		read_b;		// Routine to fetch data with
 	slipwrite_t		write_b;	// Routine to write data with
+	void			*arg;		// I/O routine argument
 	bool			use_crc8;	// Include CRC8 in packet
 
 	void write_encoded(uint8_t b);		// Write encoded byte
@@ -46,7 +47,7 @@ public:	enum Status {
 		ES_CRC				// CRC Failure
 	};
 
-	SLIP(slipread_t read_func,slipwrite_t write_func);
+	SLIP(slipread_t read_func,slipwrite_t write_func,void *arg);
 	bool enable_crc8(bool on);
 	void write(const void *buffer,unsigned length);
 	Status read(void *buffer,unsigned buflen,unsigned& retlength);

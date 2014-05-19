@@ -15,9 +15,10 @@
 // SLIP constructor :
 //////////////////////////////////////////////////////////////////////
 
-SLIP::SLIP(slipread_t read_func,slipwrite_t write_func) {
+SLIP::SLIP(slipread_t read_func,slipwrite_t write_func,void *arg) {
         read_b 	= read_func;    	// Byte reader
         write_b	= write_func;   	// Byte writer
+	this->arg = arg;		// I/O routine argument
 	use_crc8 = false;
 }
 
@@ -44,7 +45,7 @@ SLIP::write(const void *buffer,unsigned length) {
 	const uint8_t *buf = (uint8_t *)buffer;
         uint8_t b;
 
-        write_b(END);				// Flush out any line noise 
+        write_b(END,arg);			// Flush out any line noise 
 
         while ( length-- > 0 ) {
                 b = *buf++;                  	// Get next byte
@@ -57,7 +58,7 @@ SLIP::write(const void *buffer,unsigned length) {
 		write_encoded(crc);		// Send CRC as last byte
 	}
 
-	write_b(END);				// Mark the end of the packet
+	write_b(END,arg);			// Mark the end of the packet
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ SLIP::read(void *buffer,unsigned buflen,unsigned& retlength) {
 	retlength = 0;
 
 	for (;;) {
-		b = read_b();
+		b = read_b(arg);
 
                 switch ( b ) {
                 case END :
@@ -99,7 +100,7 @@ SLIP::read(void *buffer,unsigned buflen,unsigned& retlength) {
 			}
 			return ES_Ok;
                 case ESC :
-			b = read_b();
+			b = read_b(arg);
 
                         switch ( b ) {
                         case ESC_END :
@@ -128,15 +129,15 @@ SLIP::write_encoded(uint8_t b) {
 
 	switch ( b ) {
 	case END :
-		write_b(ESC);
-		write_b(ESC_END);
+		write_b(ESC,arg);
+		write_b(ESC_END,arg);
 		break;
 	case ESC :
-		write_b(ESC);
-		write_b(ESC_ESC);
+		write_b(ESC,arg);
+		write_b(ESC_ESC,arg);
 		break;
 	default :
-		write_b(b);
+		write_b(b,arg);
 	}
 }
 
