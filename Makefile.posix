@@ -9,12 +9,10 @@ C_FILES 	:= $(wildcard *.c)
 CPP_FILES 	:= $(wildcard *.cpp)
 OBJS 		:= $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
-all:	$(TOP_DIR)/lib/libteensy.a
+all:	slip.o
+	$(AR) r $(TOP_DIR)/lib/libteensy.a slip.o
 
 slip.o: slip.hpp slip.cpp crc8.cpp
-
-$(TOP_DIR)/lib/libteensy.a: slip.o
-	$(AR) r $(TOP_DIR)/lib/libteensy.a slip.o
 
 testslip: testslip.o $(TOP_DIR)/lib/libteensy.a
 	$(CXX) testslip.o -o testslip $(LDFLAGS) -lteensy
